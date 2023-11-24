@@ -11,7 +11,7 @@ use futures::future::join_all;
 use reqwest::{self};
 use std::{
     io::{self, stdout, Read, Write},
-    fs::{self, OpenOptions, remove_file, File},
+    fs::{self, OpenOptions},
     future::Future,
 };
 use regex::Regex;
@@ -36,9 +36,9 @@ pub fn get_node_names(node_list: String) -> String{
     let node_list_vec: Vec<&str> = node_list.split("\n").collect();
     let mut node_names = String::from("proxy, direct, reject,");
     for node in node_list_vec {
-        let mut name = get_node_name_from_node(node.to_string());
+        let name = get_node_name_from_node(node.to_string());
         println!("node name is {}", name);
-        if(name.len() > 0) {
+        if name.len() > 0 {
             node_names.push_str(&name);
             node_names.push_str(",");
         }
@@ -46,36 +46,28 @@ pub fn get_node_names(node_list: String) -> String{
     return node_names
 }
 
-pub  fn read_node_list<T: AsRef<str>>(path: T) -> io::Result<String>  {
-    let mut file = fs::File::open(path.as_ref())?;
-    let mut contents = String::new();
-    file.read_to_string(&mut contents)?;
-    Ok(contents)
-}
-
-pub async fn  read_node_list_new<T: AsRef<str>>(path: T, is_url: bool) -> String {
-    let mut node_list = String::from("");
-    println!("is url? {}", is_url);
-    if !is_url {
-        let mut file = fs::File::open(path.as_ref()).unwrap();
-        let mut contents = String::new();
-        file.read_to_string(&mut contents).unwrap();
-        node_list = contents
-    } else {
-        let client = reqwest::Client::new();
-        let contents =  match client.get(path.as_ref()).send().await {
-            Ok(resp) => {
-                let res: String = match resp.text().await {
-                    Ok(str) => str,
-                    Err(_)=> String:: from(""),
-                };
-                res
-            },
-            Err(_) => String:: from(""),
+pub async fn  read_node_list<T: AsRef<str>>(path: T, is_url: bool) -> String {
+    let node_list: String = 
+        if !is_url {
+            let mut file = fs::File::open(path.as_ref()).unwrap();
+            let mut contents = String::new();
+            file.read_to_string(&mut contents).unwrap();
+            contents
+        } else {
+            let client = reqwest::Client::new();
+            let contents =  match client.get(path.as_ref()).send().await {
+                Ok(resp) => {
+                    let res: String = match resp.text().await {
+                        Ok(str) => str,
+                        Err(_)=> String:: from(""),
+                    };
+                    res
+                },
+                Err(_) => String:: from(""),
+            };
+            println!("contents is {}", contents);
+            contents
         };
-        println!("contents is {}", contents);
-        node_list = contents;
-    }
     return node_list;
 }
 
@@ -157,11 +149,6 @@ pub fn read_io_input(help_text: Vec<String>, prefix_text: String, need_clear_all
     Ok(node_list_path)
 }
 
-pub fn init_conf() {
-    let file_path = "path/to/your/file.txt";
-    remove_file(file_path).unwrap();
-    File::create (file_path);
-}
 
 pub fn append_line_to_file(file_path: &str, content:  &str) -> io::Result<()> {
     // 打开文件，准备追加内容

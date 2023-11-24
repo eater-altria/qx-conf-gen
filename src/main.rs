@@ -3,11 +3,8 @@ mod constant;
 
 use qx_conf_gen::{
     read_node_list,
-    read_node_list_new,
     read_io_input,
     get_node_names,
-    append_line_to_file,
-    init_conf,
 };
 use generate::generate;
 use url::Url;
@@ -30,21 +27,17 @@ async fn main() {
         Err(_) => String::from("NodeList.snippist"), // 默认值
     };
 
-    if(path.len() == 0) {
+    if path.len() == 0 {
         path = String::from("NodeList.snippist")
     }
-    
-    let node_list = match read_node_list(&path) {
-        Ok(value) => value,
-        Err(_) => String::from(""), // 默认值
-    };
+
 
     let path_is_url = match Url::parse(path.as_ref()) {
         Ok(url) => url.scheme() == "http" || url.scheme() == "https",
         Err(_) => false,
     };
 
-    let node_list = read_node_list_new(&path, path_is_url).await;
+    let node_list = read_node_list(&path, path_is_url).await;
 
     if path.clone().len() == 0 {
         path = String::from ("NodeList.snippist")
