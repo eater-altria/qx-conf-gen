@@ -12,3 +12,6 @@
 这是一个repl程序，内部有中文的提示
 需要注意的是，规则名称目前只支持[这里](https://github.com/blackmatrix7/ios_rule_script/tree/master/rule/QuantumultX)收录的，输入规则名称时候一定要记得和这里保持一致，大小写也一样哦。
 
+## 未来计划
+1. 增加命令行模式
+2. 增加
