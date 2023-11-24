@@ -1,9 +1,24 @@
-use qx_conf_gen::{read_node_list, read_io_input, fetch_rules};
+mod generate;
+mod constant;
 
+use qx_conf_gen::{
+    read_node_list,
+    read_node_list_new,
+    read_io_input,
+    get_node_names,
+    append_line_to_file,
+    init_conf,
+};
+use generate::generate;
+use url::Url;
 
 #[tokio::main]
 async fn main() {
-    let path = match read_io_input(
+
+    // init_conf();
+    println!("hello world");
+
+    let mut path: String = match read_io_input(
         vec![
             String::from("如要退出，请按Ctrl + C"),
             String::from("如果直接按下回车，将采取默认路径NodeList.snippist"),
@@ -14,12 +29,29 @@ async fn main() {
         Ok(value) => value,
         Err(_) => String::from("NodeList.snippist"), // 默认值
     };
+
+    if(path.len() == 0) {
+        path = String::from("NodeList.snippist")
+    }
     
-    let node_list_path = match read_node_list(path) {
+    let node_list = match read_node_list(&path) {
         Ok(value) => value,
         Err(_) => String::from(""), // 默认值
     };
-    
+
+    let path_is_url = match Url::parse(path.as_ref()) {
+        Ok(url) => url.scheme() == "http" || url.scheme() == "https",
+        Err(_) => false,
+    };
+
+    let node_list = read_node_list_new(&path, path_is_url).await;
+
+    if path.clone().len() == 0 {
+        path = String::from ("NodeList.snippist")
+    }
+
+    let node_names = get_node_names(node_list.clone());
+
 
     let rules = match read_io_input(
         vec![
@@ -40,57 +72,14 @@ async fn main() {
         let rule_list_second: Vec<&str> = rule.split('，').collect();
         for rule in rule_list_second {
             let trim_rule = rule.trim();
-            if(trim_rule.len() > 0) {
+            if trim_rule.len() > 0 {
                 let trim_rule = rule.trim();
                 rule_list.push(trim_rule)
             }
         }
     }
 
-    
     println!("rule list is {:?}", rule_list);
-
-    let rule_text_list = fetch_rules(rule_list).await;
+    
+    generate(rule_list, node_names, node_list.clone(), path_is_url, path);
 }
-
-
-// use reqwest;
-// use std::error::Error;
-
-// // 异步函数以获取资源
-// async fn fetch_resource(url: &str) -> Result<String, Box<dyn Error>> {
-//     let response = reqwest::get(url).await?;
-
-//     if response.status().is_success() {
-//         let contents = response.text().await?;
-//         Ok(contents)
-//     } else {
-//         Err(Box::new(std::io::Error::new(std::io::ErrorKind::Other, "Request failed")))
-//     }
-// }
-
-// #[tokio::main]
-// async fn main() {
-//     let url1 = "
-//     https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/QuantumultX/AppleTV/AppleTV.list"; // 替换为你想访问的 URL
-//     let url2 = "
-//     https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/QuantumultX/BBC/BBC.list"; // 替换为你想访问的 URL
-//     let url3 = "
-//     https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/QuantumultX/BiliBili/BiliBili.list"; // 替换为你想访问的 URL  
-//     match fetch_resource(url1).await {
-//         Ok(contents) => println!("1 is done"),
-//         Err(e) => println!("Error fetching resource: {}", e),
-//     }
-//     match fetch_resource(url2).await {
-//         Ok(contents) => println!("2 is done"),
-//         Err(e) => println!("Error fetching resource: {}", e),
-//     }
-//     match fetch_resource(url3).await {
-//         Ok(contents) => println!("3 is done"),
-//         Err(e) => println!("Error fetching resource: {}", e),
-//     }
-//     match fetch_resource(url1).await {
-//         Ok(contents) => println!("4 is done"),
-//         Err(e) => println!("Error fetching resource: {}", e),
-//     }
-// }
