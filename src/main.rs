@@ -5,6 +5,7 @@ use qx_conf_gen::{
     read_node_list,
     read_io_input,
     get_node_names,
+    init_conf,
 };
 use generate::generate;
 use url::Url;
@@ -12,7 +13,7 @@ use url::Url;
 #[tokio::main]
 async fn main() {
 
-    // init_conf();
+    init_conf();
     println!("hello world");
 
     let mut path: String = match read_io_input(

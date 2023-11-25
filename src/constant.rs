@@ -19,3 +19,10 @@ pub const FILTER_LOCAL:[&str; 3] = [
   "GEOIP,CN,全球直连",
   "FINAL,漏网之鱼",
 ];
+
+pub const OTHER_SETTING: [&str;4] = [
+  "[server_remote]",
+  "[rewrite_remote]",
+  "[rewrite_local]",
+  "[mitm]"
+];

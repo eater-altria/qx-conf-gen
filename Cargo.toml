@@ -13,3 +13,5 @@ futures={ version = "0.3.29" }
 regex = "1"
 url = "2.2.2"  # 确保使用最新版本
 
+[target.x86_64-unknown-linux-musl]
+linker = "x86_64-linux-musl-gcc"

@@ -1,4 +1,4 @@
-use crate::constant::{GENERAL_CONTENT, DNS_CONTENT, FILTER_LOCAL};
+use crate::constant::{GENERAL_CONTENT, DNS_CONTENT, OTHER_SETTING, FILTER_LOCAL};
 use qx_conf_gen::append_line_to_file;
 use qx_conf_gen::gen_url;
 use qx_conf_gen::append_lines;
@@ -66,6 +66,9 @@ pub fn generate(rule_list: Vec<&str>, node_names: String, node_list: String, pat
   
   let filter_local = Vec::from(FILTER_LOCAL);
   append_lines("qx.conf", filter_local);
+
+  let other_setting = Vec::from(OTHER_SETTING);
+  append_lines("qx.conf", other_setting);
 }
 
 
