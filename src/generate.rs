@@ -4,14 +4,12 @@ use qx_conf_gen::gen_url;
 use qx_conf_gen::append_lines;
 
 fn generate_policy_info (rule_list: &Vec<&str>, node_names: String) -> Vec<String> {
-  println!("nodenames is {}", node_names);
   let mut policy_info_vec: Vec<String> = Vec::new();
   policy_info_vec.push(String::from("[policy]"));
   for rule in rule_list {
       let policy_info:String = format!("static={}, {}",rule, node_names);
       policy_info_vec.push(policy_info);
   }
-  println!("node_names is: {}", node_names);
   let auto_select = format!("url-latency-benchmark=自动选择,{}", node_names.replace("proxy,direct,reject,自动选择,", ""));
   let direct_policy= format!("static=全球直连, proxy,direct,reject,自动选择,");
   let omissive = format!("static=漏网之鱼, {}", node_names);

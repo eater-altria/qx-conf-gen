@@ -3,7 +3,7 @@ use crossterm::{
     event::{self, KeyCode, KeyEvent},
     execute,
     style::{Color, Print, ResetColor, SetBackgroundColor, SetForegroundColor},
-    terminal::{Clear, ClearType, EnterAlternateScreen},
+    terminal::{Clear, ClearType, EnterAlternateScreen, enable_raw_mode, disable_raw_mode},
 };
 use futures::future::join_all;
 use regex::Regex;
@@ -13,6 +13,9 @@ use std::{
     future::Future,
     io::{self, stdout, Read, Write},
     path,
+    thread,
+    time::Duration,
+
 };
 
 pub fn init_conf() {
@@ -43,7 +46,6 @@ pub fn get_node_names(node_list: String) -> String {
     let mut node_names = String::from("proxy,direct,reject,自动选择,");
     for node in node_list_vec {
         let name = get_node_name_from_node(node.to_string());
-        println!("node name is {}", name);
         if name.len() > 0 {
             node_names.push_str(&name);
             node_names.push_str(",");
@@ -70,17 +72,20 @@ pub async fn read_node_list<T: AsRef<str>>(path: T, is_url: bool) -> String {
             }
             Err(_) => String::from(""),
         };
-        println!("contents is {}", contents);
         contents
     };
     return node_list;
 }
-
+fn delay_ms(ms: u64) {
+    let delay = Duration::from_millis(ms);
+    thread::sleep(delay);
+}
 pub fn read_io_input(
     help_text: Vec<String>,
     prefix_text: String,
     need_clear_all: bool,
 ) -> std::io::Result<String> {
+    enable_raw_mode().unwrap();
     let mut node_list_path = String::new();
     if need_clear_all {
         execute!(stdout(), Clear(ClearType::All),)?;
@@ -107,9 +112,12 @@ pub fn read_io_input(
     // terminal::enable_raw_mode()?;
     loop {
         if let event::Event::Key(KeyEvent {
-            code, modifiers: _, ..
+            code, modifiers: _, kind, ..
         }) = event::read()?
-        {
+        {   
+            if kind == event::KeyEventKind::Release {
+                continue; // 忽略释放按键的事件
+            }
             match code {
                 KeyCode::Char(c) => {
                     node_list_path.push(c);
@@ -152,6 +160,7 @@ pub fn read_io_input(
     }
     // disable_raw_mode();
     println!("");
+    enable_raw_mode().unwrap();
     Ok(node_list_path)
 }
 
@@ -193,7 +202,6 @@ pub async fn fetch_resource(
 }
 
 pub async fn fetch_rules(rule_list: Vec<&str>) -> Vec<String> {
-    println!("----fetch_rules---start----");
     let mut rule_text_list: Vec<String> = Vec::new();
     let fetch_futures: Vec<_> = rule_list.iter().map(|url| fetch_resource(url)).collect();
     let request_list = join_all(fetch_futures).await;
@@ -209,9 +217,7 @@ pub async fn fetch_rules(rule_list: Vec<&str>) -> Vec<String> {
             }
             Err(_) => String::from(""),
         };
-        println!("{}", rule_text);
         rule_text_list.push(rule_text);
     }
-    println!("----fetch_rules---end----");
     rule_text_list
 }
