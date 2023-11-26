@@ -76,10 +76,7 @@ pub async fn read_node_list<T: AsRef<str>>(path: T, is_url: bool) -> String {
     };
     return node_list;
 }
-fn delay_ms(ms: u64) {
-    let delay = Duration::from_millis(ms);
-    thread::sleep(delay);
-}
+
 pub fn read_io_input(
     help_text: Vec<String>,
     prefix_text: &str,
@@ -94,6 +91,7 @@ pub fn read_io_input(
     for text in &help_text {
         execute!(
             stdout(),
+            MoveLeft(100),
             SetForegroundColor(Color::White),
             SetBackgroundColor(Color::Green),
             Print(text),
@@ -104,6 +102,7 @@ pub fn read_io_input(
 
     execute!(
         stdout(),
+        MoveLeft(100),
         SetForegroundColor(Color::White),
         SetBackgroundColor(Color::Green),
         Print(&prefix_text),
