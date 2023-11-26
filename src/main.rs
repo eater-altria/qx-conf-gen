@@ -14,14 +14,15 @@ use url::Url;
 async fn main() {
 
     init_conf();
-    println!("hello world");
 
     let mut path: String = match read_io_input(
         vec![
             String::from("如要退出，请按Ctrl + C"),
             String::from("如果直接按下回车，将采取默认路径NodeList.snippist"),
         ],
-        String::from("请输入节点列表文件路径，并按回车键确认:"),
+        "请输入节点列表文件路径，并按回车键确认:",
+        "您输入的节点列表路径为:",
+
         true
     ) {
         Ok(value) => value,
@@ -53,7 +54,8 @@ async fn main() {
             String::from("https://github.com/blackmatrix7/ios_rule_script/tree/master/rule/QuantumultX"),
             String::from("如果需要添加多个规则，请用逗号分隔，不区分圆角半角")
         ],
-        String::from("请输入你需要添加的规则:"),
+        "请输入你需要添加的规则:",
+        "您输入的规则名称路径为:",
         false
     ) {
         Ok(value) => value,

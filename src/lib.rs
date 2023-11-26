@@ -3,7 +3,7 @@ use crossterm::{
     event::{self, KeyCode, KeyEvent},
     execute,
     style::{Color, Print, ResetColor, SetBackgroundColor, SetForegroundColor},
-    terminal::{Clear, ClearType, EnterAlternateScreen, enable_raw_mode, disable_raw_mode},
+    terminal::{Clear, ClearType, enable_raw_mode, disable_raw_mode},
 };
 use futures::future::join_all;
 use regex::Regex;
@@ -82,34 +82,33 @@ fn delay_ms(ms: u64) {
 }
 pub fn read_io_input(
     help_text: Vec<String>,
-    prefix_text: String,
+    prefix_text: &str,
+    suffix_text: &str,
     need_clear_all: bool,
 ) -> std::io::Result<String> {
-    // enable_raw_mode().unwrap();
+    enable_raw_mode().unwrap();
     let mut node_list_path = String::new();
     if need_clear_all {
-        execute!(stdout(), Clear(ClearType::All),)?;
+        // execute!(stdout(), Clear(ClearType::All),)?;
     }
-    for text in help_text {
+    for text in &help_text {
         execute!(
             stdout(),
-            EnterAlternateScreen,
             SetForegroundColor(Color::White),
-            SetBackgroundColor(Color::Blue),
+            SetBackgroundColor(Color::Green),
             Print(text),
-            MoveLeft(100),
+            ResetColor,
         )?;
         println!("");
     }
+
     execute!(
         stdout(),
-        EnterAlternateScreen,
         SetForegroundColor(Color::White),
         SetBackgroundColor(Color::Green),
         Print(&prefix_text),
         ResetColor,
     )?;
-    // terminal::enable_raw_mode()?;
     loop {
         if let event::Event::Key(KeyEvent {
             code, modifiers: _, kind, ..
@@ -126,8 +125,7 @@ pub fn read_io_input(
                     execute!(
                         stdout(),
                         MoveLeft((40 + offset).try_into().unwrap()),
-                        Clear(ClearType::CurrentLine),
-                        EnterAlternateScreen,
+                        // Clear(ClearType::UntilNewLine),
                         SetForegroundColor(Color::White),
                         SetBackgroundColor(Color::Green),
                         Print(text),
@@ -141,23 +139,20 @@ pub fn read_io_input(
                     execute!(
                         stdout(),
                         MoveLeft((40 + offset).try_into().unwrap()),
-                        Clear(ClearType::UntilNewLine),
-                        EnterAlternateScreen,
+                        Clear(ClearType::CurrentLine),
                         SetForegroundColor(Color::White),
                         SetBackgroundColor(Color::Green),
                         Print(text),
                         ResetColor,
                     )?;
-                    println!("{}{}", &prefix_text, node_list_path);
                 }
                 KeyCode::Enter => {
                     println!("");
-                    let text = (String::from("您输入的节点列表文件路径为:")) + &node_list_path;
+                    let text = (String::from(suffix_text)) + &node_list_path;
                     execute!(
                         stdout(),
                         MoveLeft((100).try_into().unwrap()),
-                        Clear(ClearType::CurrentLine),
-                        EnterAlternateScreen,
+                        // Clear(ClearType::CurrentLine),
                         SetForegroundColor(Color::White),
                         SetBackgroundColor(Color::Green),
                         Print(text),
@@ -170,7 +165,7 @@ pub fn read_io_input(
             }
         }
     }
-    disable_raw_mode();
+    disable_raw_mode().unwrap();
     println!("");
     // enable_raw_mode().unwrap();
     Ok(node_list_path)
