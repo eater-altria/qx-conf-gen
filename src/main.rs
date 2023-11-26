@@ -17,7 +17,7 @@ async fn main() {
 
     let mut path: String = match read_io_input(
         vec![
-            String::from("如要退出，请按Ctrl + C"),
+            String::from("如要退出，请按ESC"),
             String::from("如果直接按下回车，将采取默认路径NodeList.snippist"),
         ],
         "请输入节点列表文件路径，并按回车键确认:",
