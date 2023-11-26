@@ -1,4 +1,4 @@
-use crate::constant::{GENERAL_CONTENT, DNS_CONTENT, OTHER_SETTING, FILTER_LOCAL};
+use crate::constant::{GENERAL_CONTENT, DNS_CONTENT, OTHER_SETTING_1, OTHER_SETTING_2, FILTER_LOCAL};
 use qx_conf_gen::append_line_to_file;
 use qx_conf_gen::gen_url;
 use qx_conf_gen::append_lines;
@@ -10,7 +10,7 @@ fn generate_policy_info (rule_list: &Vec<&str>, node_names: String) -> Vec<Strin
       let policy_info:String = format!("static={}, {}",rule, node_names);
       policy_info_vec.push(policy_info);
   }
-  let auto_select = format!("url-latency-benchmark=自动选择,{}", node_names.replace("proxy,direct,reject,自动选择,", ""));
+  let auto_select = format!("url-latency-benchmark=自动选择, server-tag-regex=.*, check-interval=600, tolerance=100,");
   let direct_policy= format!("static=全球直连, proxy,direct,reject,自动选择,");
   let omissive = format!("static=漏网之鱼, {}", node_names);
   policy_info_vec.push(auto_select);
@@ -66,7 +66,11 @@ pub fn generate(rule_list: Vec<&str>, node_names: String, node_list: String, pat
   let filter_local = Vec::from(FILTER_LOCAL);
   append_lines("qx.conf", filter_local);
 
-  let other_setting = Vec::from(OTHER_SETTING);
+  let other_setting = if path_is_url {
+    Vec::from(OTHER_SETTING_1)
+  } else {
+    Vec::from(OTHER_SETTING_2)
+  };
   append_lines("qx.conf", other_setting);
 }
 
