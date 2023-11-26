@@ -141,7 +141,7 @@ pub fn read_io_input(
                     execute!(
                         stdout(),
                         MoveLeft((40 + offset).try_into().unwrap()),
-                        Clear(ClearType::CurrentLine),
+                        Clear(ClearType::UntilNewLine),
                         EnterAlternateScreen,
                         SetForegroundColor(Color::White),
                         SetBackgroundColor(Color::Green),
@@ -170,9 +170,9 @@ pub fn read_io_input(
             }
         }
     }
-    // disable_raw_mode();
+    disable_raw_mode();
     println!("");
-    enable_raw_mode().unwrap();
+    // enable_raw_mode().unwrap();
     Ok(node_list_path)
 }
 
