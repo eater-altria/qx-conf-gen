@@ -85,7 +85,7 @@ pub fn read_io_input(
     prefix_text: String,
     need_clear_all: bool,
 ) -> std::io::Result<String> {
-    enable_raw_mode().unwrap();
+    // enable_raw_mode().unwrap();
     let mut node_list_path = String::new();
     if need_clear_all {
         execute!(stdout(), Clear(ClearType::All),)?;
@@ -121,21 +121,33 @@ pub fn read_io_input(
             match code {
                 KeyCode::Char(c) => {
                     node_list_path.push(c);
-                    // let offset = node_list_path.len();
-                    // let text = (&prefix_text).to_string() + &node_list_path;
-                    // execute!(
-                    //     stdout(),
-                    //     MoveLeft((40 + offset).try_into().unwrap()),
-                    //     Clear(ClearType::CurrentLine),
-                    //     EnterAlternateScreen,
-                    //     SetForegroundColor(Color::White),
-                    //     SetBackgroundColor(Color::Green),
-                    //     Print(text),
-                    //     ResetColor,
-                    // )?;
+                    let offset = node_list_path.len();
+                    let text = (&prefix_text).to_string() + &node_list_path;
+                    execute!(
+                        stdout(),
+                        MoveLeft((40 + offset).try_into().unwrap()),
+                        Clear(ClearType::CurrentLine),
+                        EnterAlternateScreen,
+                        SetForegroundColor(Color::White),
+                        SetBackgroundColor(Color::Green),
+                        Print(text),
+                        ResetColor,
+                    )?;
                 }
                 KeyCode::Backspace => {
                     node_list_path.pop();
+                    let offset = node_list_path.len();
+                    let text = (&prefix_text).to_string() + &node_list_path;
+                    execute!(
+                        stdout(),
+                        MoveLeft((40 + offset).try_into().unwrap()),
+                        Clear(ClearType::CurrentLine),
+                        EnterAlternateScreen,
+                        SetForegroundColor(Color::White),
+                        SetBackgroundColor(Color::Green),
+                        Print(text),
+                        ResetColor,
+                    )?;
                     println!("{}{}", &prefix_text, node_list_path);
                 }
                 KeyCode::Enter => {
