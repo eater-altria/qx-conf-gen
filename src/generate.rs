@@ -11,8 +11,9 @@ fn generate_policy_info (rule_list: &Vec<&str>, node_names: String) -> Vec<Strin
       let policy_info:String = format!("static={}, {}",rule, node_names);
       policy_info_vec.push(policy_info);
   }
-  let auto_select = format!("url-latency-benchmark=自动选择,{}", node_names.replace("direct, reject, proxy, 自动选择,", ""));
-  let direct_policy= format!("static=全球直连, direct,reject,proxy");
+  println!("node_names is: {}", node_names);
+  let auto_select = format!("url-latency-benchmark=自动选择,{}", node_names.replace("proxy,direct,reject,自动选择,", ""));
+  let direct_policy= format!("static=全球直连, proxy,direct,reject,自动选择,");
   let omissive = format!("static=漏网之鱼, {}", node_names);
   policy_info_vec.push(auto_select);
   policy_info_vec.push(direct_policy);

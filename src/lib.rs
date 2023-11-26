@@ -40,7 +40,7 @@ pub fn get_node_name_from_node(node_info: String) -> String {
 
 pub fn get_node_names(node_list: String) -> String {
     let node_list_vec: Vec<&str> = node_list.split("\n").collect();
-    let mut node_names = String::from("proxy, direct, reject,");
+    let mut node_names = String::from("proxy,direct,reject,自动选择,");
     for node in node_list_vec {
         let name = get_node_name_from_node(node.to_string());
         println!("node name is {}", name);
@@ -113,18 +113,18 @@ pub fn read_io_input(
             match code {
                 KeyCode::Char(c) => {
                     node_list_path.push(c);
-                    let offset = node_list_path.len();
-                    let text = (&prefix_text).to_string() + &node_list_path;
-                    execute!(
-                        stdout(),
-                        MoveLeft((40 + offset).try_into().unwrap()),
-                        Clear(ClearType::CurrentLine),
-                        EnterAlternateScreen,
-                        SetForegroundColor(Color::White),
-                        SetBackgroundColor(Color::Green),
-                        Print(text),
-                        ResetColor,
-                    )?;
+                    // let offset = node_list_path.len();
+                    // let text = (&prefix_text).to_string() + &node_list_path;
+                    // execute!(
+                    //     stdout(),
+                    //     MoveLeft((40 + offset).try_into().unwrap()),
+                    //     Clear(ClearType::CurrentLine),
+                    //     EnterAlternateScreen,
+                    //     SetForegroundColor(Color::White),
+                    //     SetBackgroundColor(Color::Green),
+                    //     Print(text),
+                    //     ResetColor,
+                    // )?;
                 }
                 KeyCode::Backspace => {
                     node_list_path.pop();
