@@ -13,8 +13,6 @@ use std::{
     future::Future,
     io::{self, stdout, Read, Write},
     path,
-    thread,
-    time::Duration,
 
 };
 
