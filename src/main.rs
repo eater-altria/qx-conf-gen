@@ -6,9 +6,11 @@ use qx_conf_gen::{
     read_io_input,
     get_node_names,
     init_conf,
+    read_config_file, parse_config,
 };
 use generate::generate;
 use url::Url;
+
 
 #[tokio::main]
 async fn main() {
@@ -18,19 +20,19 @@ async fn main() {
     let mut path: String = match read_io_input(
         vec![
             String::from("如要退出，请按ESC"),
-            String::from("如果直接按下回车，将采取默认路径NodeList.snippist"),
+            String::from("如果直接按下回车，将采取默认路径old.conf"),
         ],
-        "请输入节点列表文件路径，并按回车键确认:",
+        "请输入旧的配置文件路径，并按回车键确认:",
         "您输入的节点列表路径为:",
 
         true
     ) {
         Ok(value) => value,
-        Err(_) => String::from("NodeList.snippist"), // 默认值
+        Err(_) => String::from("old.conf"), // 默认值
     };
 
     if path.len() == 0 {
-        path = String::from("NodeList.snippist")
+        path = String::from("old.conf")
     }
 
 
@@ -39,10 +41,17 @@ async fn main() {
         Err(_) => false,
     };
 
-    let node_list = read_node_list(&path, path_is_url).await;
+    let config_contents = read_config_file(&path, path_is_url).await;
+    let config_map = parse_config(config_contents);
+    println!("{:?}", config_map);
+    let node_list: String= match config_map.get("server_local") {
+        Some(value) => value.clone(),
+        None => String::new(),
+    };
+    println!("{}", node_list);
 
     if path.clone().len() == 0 {
-        path = String::from ("NodeList.snippist")
+        path = String::from ("old.conf")
     }
 
     let node_names = get_node_names(node_list.clone());
@@ -59,7 +68,7 @@ async fn main() {
         false
     ) {
         Ok(value) => value,
-        Err(_) => String::from("NodeList.snippist"), // 默认值
+        Err(_) => String::from("old.conf"), // 默认值
     };
 
     let rule_list_first: Vec<&str> = rules.split(',').collect();

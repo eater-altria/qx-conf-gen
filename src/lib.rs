@@ -13,6 +13,7 @@ use std::{
     future::Future,
     io::{self, stdout, Read, Write},
     path,
+    collections::HashMap,
 
 };
 
@@ -73,6 +74,55 @@ pub async fn read_node_list<T: AsRef<str>>(path: T, is_url: bool) -> String {
         contents
     };
     return node_list;
+}
+
+pub async fn read_config_file<T: AsRef<str>>(path: T, is_url: bool) -> String {
+    let node_list: String = if !is_url {
+        let mut file = fs::File::open(path.as_ref()).unwrap();
+        let mut contents = String::new();
+        file.read_to_string(&mut contents).unwrap();
+        contents
+    } else {
+        let client = reqwest::Client::new();
+        let contents = match client.get(path.as_ref()).send().await {
+            Ok(resp) => {
+                let res: String = match resp.text().await {
+                    Ok(str) => str,
+                    Err(_) => String::from(""),
+                };
+                res
+            }
+            Err(_) => String::from(""),
+        };
+        contents
+    };
+    return node_list;
+}
+
+
+pub fn parse_config(contents: String) -> HashMap<String, String> {
+    let mut config = HashMap::new();
+    let mut current_key = String::new();
+    let mut current_value = String::new();
+
+    for line in contents.lines() {
+        if line.starts_with('[') {
+            if !current_key.is_empty() {
+                config.insert(current_key.clone(), current_value.trim().to_string());
+            }
+            current_key = line.trim_matches(|c| c == '[' || c == ']').to_string();
+            current_value = String::new();
+        } else {
+            current_value.push_str(line);
+            current_value.push('\n');
+        }
+    }
+
+    if !current_key.is_empty() {
+        config.insert(current_key, current_value.trim().to_string());
+    }
+
+    config
 }
 
 pub fn read_io_input(

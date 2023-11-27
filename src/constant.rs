@@ -21,14 +21,14 @@ pub const FILTER_LOCAL:[&str; 3] = [
 ];
 
 pub const OTHER_SETTING_1: [&str;4] = [
-  "[server_remote]",
+  "[server_local]",
   "[rewrite_remote]",
   "[rewrite_local]",
   "[mitm]"
 ];
 
 pub const OTHER_SETTING_2: [&str;4] = [
-  "[server_local]",
+  "[server_remote]",
   "[rewrite_remote]",
   "[rewrite_local]",
   "[mitm]"

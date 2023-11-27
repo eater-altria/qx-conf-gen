@@ -66,6 +66,8 @@ pub fn generate(rule_list: Vec<&str>, node_names: String, node_list: String, pat
   let filter_local = Vec::from(FILTER_LOCAL);
   append_lines("qx.conf", filter_local);
 
+  println!("path_is_url: {}", path_is_url);
+
   let other_setting = if path_is_url {
     Vec::from(OTHER_SETTING_1)
   } else {
