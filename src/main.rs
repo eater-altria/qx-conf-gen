@@ -7,7 +7,7 @@ use qx_conf_gen::{
     init_conf,
     read_config_file, parse_config,
 };
-use generate::generate;
+use generate::output_config_file_content;
 use url::Url;
 use std::env;
 
@@ -115,5 +115,5 @@ async fn main() {
 
     println!("rule list is {:?}", rule_list);
     
-    generate(rule_list, node_names, node_list.clone(), path_is_url, path);
+    output_config_file_content(rule_list, node_names, node_list.clone(), path_is_url, path);
 }

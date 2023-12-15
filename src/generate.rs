@@ -1,5 +1,4 @@
-use crate::constant::{GENERAL_CONTENT, DNS_CONTENT, OTHER_SETTING_1, OTHER_SETTING_2, FILTER_LOCAL};
-use qx_conf_gen::append_line_to_file;
+use crate::constant::{GENERAL_CONTENT, DNS_CONTENT, OTHER_SETTING, FILTER_LOCAL};
 use qx_conf_gen::gen_url;
 use qx_conf_gen::append_lines;
 
@@ -31,21 +30,22 @@ fn generate_filter_remote (rule_list: &Vec<&str>) -> Vec<String> {
 }
 
 
-pub fn generate(rule_list: Vec<&str>, node_names: String, node_list: String, path_is_url: bool, path: String ) {
+pub fn output_config_file_content(rule_list: Vec<&str>, node_names: String, node_list: String, path_is_url: bool, path: String ) {
+  let mut contents_vec: Vec<String> = Vec::new();
   let general_content = Vec::from(GENERAL_CONTENT);
-  append_lines("qx.conf", general_content);
+  contents_vec.extend(general_content.iter().map(|s| s.to_string()));
 
   let dns_content = Vec::from(DNS_CONTENT);
-  append_lines("qx.conf", dns_content);
+  contents_vec.extend( dns_content.iter().map(|&s| s.to_string()));
 
   let policy_info = generate_policy_info(
     &rule_list,
     node_names,
   );
-  append_lines("qx.conf", policy_info);
+  contents_vec.extend(policy_info);
 
   let filter_remote = generate_filter_remote(&rule_list);
-  append_lines("qx.conf", filter_remote);
+  contents_vec.extend(filter_remote.iter().map(|s| s.to_string()));
 
   if !path_is_url {
     let mut node_list_info: Vec<&str> = vec![
@@ -54,26 +54,18 @@ pub fn generate(rule_list: Vec<&str>, node_names: String, node_list: String, pat
 
     let split_node_list:Vec<&str> = node_list.split("\n").collect();
     node_list_info.extend(split_node_list);
-    append_lines("qx.conf", node_list_info);
+    contents_vec.extend(node_list_info.iter().map(|s| s.to_string()));
+    contents_vec.push(String::from("[server_remote]"));
   } else {
-    append_line_to_file("qx.conf", "[server_remote]").unwrap();
-    append_line_to_file(
-      "qx.conf", 
-      &format!("{}, tag=test, update-interval=172800, opt-parser=false, enabled=false", path),
-    ).unwrap();
+    contents_vec.push(String::from("[server_remote]"));
+    contents_vec.push(format!("{}, tag=test, update-interval=172800, opt-parser=false, enabled=false", path));
+    contents_vec.push(String::from("[server_local]"));
   }
   
-  let filter_local = Vec::from(FILTER_LOCAL);
-  append_lines("qx.conf", filter_local);
+  contents_vec.extend(FILTER_LOCAL.iter().map(|s| s.to_string()));
 
-  println!("path_is_url: {}", path_is_url);
+  contents_vec.extend(OTHER_SETTING.iter().map(|s| s.to_string()));
+  append_lines("qx.conf", contents_vec)
 
-  let other_setting = if path_is_url {
-    Vec::from(OTHER_SETTING_1)
-  } else {
-    Vec::from(OTHER_SETTING_2)
-  };
-  append_lines("qx.conf", other_setting);
 }
-
 

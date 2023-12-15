@@ -20,15 +20,7 @@ pub const FILTER_LOCAL:[&str; 3] = [
   "FINAL,漏网之鱼",
 ];
 
-pub const OTHER_SETTING_1: [&str;4] = [
-  "[server_local]",
-  "[rewrite_remote]",
-  "[rewrite_local]",
-  "[mitm]"
-];
-
-pub const OTHER_SETTING_2: [&str;4] = [
-  "[server_remote]",
+pub const OTHER_SETTING: [&str;3] = [
   "[rewrite_remote]",
   "[rewrite_local]",
   "[mitm]"
