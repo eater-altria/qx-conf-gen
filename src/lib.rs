@@ -17,6 +17,7 @@ use std::{
 
 };
 
+
 pub fn init_conf() {
     let path = "qx.conf";
     if path::Path::new(path).exists() {
@@ -100,7 +101,7 @@ pub async fn read_config_file<T: AsRef<str>>(path: T, is_url: bool) -> String {
 }
 
 
-pub fn parse_config(contents: String) -> HashMap<String, String> {
+pub fn parse_config(contents: &str) -> HashMap<String, String> {
     let mut config = HashMap::new();
     let mut current_key = String::new();
     let mut current_value = String::new();
@@ -219,16 +220,19 @@ pub fn read_io_input(
 }
 
 pub fn append_line_to_file(file_path: &str, content: &str) -> io::Result<()> {
-    // 打开文件，准备追加内容
+    // 使用OpenOptions打开文件，设置为可写、可追加和可创建
+    // 如果文件不存在，那么会创建一个新文件
     let mut file = OpenOptions::new()
         .write(true)
         .append(true)
         .create(true)
-        .open(file_path)?;
+        .open(file_path)?;  // 使用问号运算符，如果出现错误，会立即返回错误
 
-    // 将内容写入文件
+    // 使用writeln!宏将内容写入文件，它会自动添加换行符
+    // 如果写入失败，会立即返回错误
     writeln!(file, "{}", content)?;
 
+    // 如果以上所有操作都成功，那么返回Ok(())
     Ok(())
 }
 
@@ -237,6 +241,7 @@ pub fn append_lines<T: AsRef<str>>(file_path: &str, contents: Vec<T>) {
         append_line_to_file(file_path, content.as_ref()).unwrap();
     }
 }
+
 
 pub fn gen_url(rule_name: String) -> String {
     return format!(
