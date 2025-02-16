@@ -30,7 +30,7 @@ fn generate_filter_remote (rule_list: &Vec<&str>) -> Vec<String> {
 }
 
 
-pub fn output_config_file_content(rule_list: Vec<&str>, node_names: String, node_list: String, path_is_url: bool, path: String ) {
+pub fn output_config_file_content(rule_list: Vec<&str>, node_names: String, node_list: String ) {
   let mut contents_vec: Vec<String> = Vec::new();
   let general_content = Vec::from(GENERAL_CONTENT);
   contents_vec.extend(general_content.iter().map(|s| s.to_string()));
@@ -47,8 +47,7 @@ pub fn output_config_file_content(rule_list: Vec<&str>, node_names: String, node
   let filter_remote = generate_filter_remote(&rule_list);
   contents_vec.extend(filter_remote.iter().map(|s| s.to_string()));
 
-  if !path_is_url {
-    let mut node_list_info: Vec<&str> = vec![
+  let mut node_list_info: Vec<&str> = vec![
       "[server_local]",
     ];
 
@@ -56,11 +55,6 @@ pub fn output_config_file_content(rule_list: Vec<&str>, node_names: String, node
     node_list_info.extend(split_node_list);
     contents_vec.extend(node_list_info.iter().map(|s| s.to_string()));
     contents_vec.push(String::from("[server_remote]"));
-  } else {
-    contents_vec.push(String::from("[server_remote]"));
-    contents_vec.push(format!("{}, tag=test, update-interval=172800, opt-parser=false, enabled=false", path));
-    contents_vec.push(String::from("[server_local]"));
-  }
   
   contents_vec.extend(FILTER_LOCAL.iter().map(|s| s.to_string()));
 

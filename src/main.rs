@@ -1,14 +1,18 @@
 mod generate;
 mod constant;
+mod clash_to_qx;
 
 use qx_conf_gen::{
     read_io_input,
     get_node_names,
     init_conf,
-    read_config_file, parse_config,
 };
 use generate::output_config_file_content;
-use url::Url;
+use clash_to_qx:: {
+    fetch_clash_conf,
+    parse_proxies_from_yaml,
+    format_proxies,
+};
 use std::env;
 
 
@@ -46,10 +50,10 @@ async fn main() {
         path = match read_io_input(
             vec![
                 String::from("如要退出，请按ESC"),
-                String::from("如果直接按下回车，将采取默认路径old.conf"),
+                // String::from("如果直接按下回车，将采取默认路径old.conf"),
             ],
-            "请输入旧的配置文件路径，并按回车键确认:",
-            "您输入的节点列表路径为:",
+            "请输入配置文件路径，并按回车键确认:",
+            "",
     
             true
         ) {
@@ -61,25 +65,14 @@ async fn main() {
     if path.len() == 0 {
         path = String::from("old.conf")
     }
-
-
-    let path_is_url = match Url::parse(path.as_ref()) {
-        Ok(url) => url.scheme() == "http" || url.scheme() == "https",
-        Err(_) => false,
-    };
-
-    let config_contents = read_config_file(&path, path_is_url).await;
-    let config_map = parse_config(&config_contents);
-    println!("{:?}", config_map);
-    let node_list: String= match config_map.get("server_local") {
-        Some(value) => value.clone(),
-        None => (&config_contents).clone(),
-    };
+    let conf = fetch_clash_conf(path.clone()).await;
+    let proxies = parse_proxies_from_yaml(conf);
+    let node_list = format_proxies(proxies).join("\n");
     println!("{}", node_list);
 
-    if path.clone().len() == 0 {
-        path = String::from ("old.conf")
-    }
+    // if path.clone().len() == 0 {
+    //     path = String::from ("old.conf")
+    // }
 
     let node_names = get_node_names(node_list.clone());
 
@@ -115,5 +108,5 @@ async fn main() {
 
     println!("rule list is {:?}", rule_list);
     
-    output_config_file_content(rule_list, node_names, node_list.clone(), path_is_url, path);
+    output_config_file_content(rule_list, node_names, node_list.clone());
 }

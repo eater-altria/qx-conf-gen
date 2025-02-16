@@ -17,7 +17,6 @@ use std::{
 
 };
 
-
 pub fn init_conf() {
     let path = "qx.conf";
     if path::Path::new(path).exists() {
