@@ -3,18 +3,17 @@ use crossterm::{
     event::{self, KeyCode, KeyEvent},
     execute,
     style::{Color, Print, ResetColor, SetBackgroundColor, SetForegroundColor},
-    terminal::{Clear, ClearType, enable_raw_mode, disable_raw_mode},
+    terminal::{disable_raw_mode, enable_raw_mode, Clear, ClearType},
 };
 use futures::future::join_all;
 use regex::Regex;
 use reqwest::{self};
 use std::{
+    collections::HashMap,
     fs::{self, remove_file, OpenOptions},
     future::Future,
     io::{self, stdout, Read, Write},
     path,
-    collections::HashMap,
-
 };
 
 pub fn init_conf() {
@@ -99,7 +98,6 @@ pub async fn read_config_file<T: AsRef<str>>(path: T, is_url: bool) -> String {
     return node_list;
 }
 
-
 pub fn parse_config(contents: &str) -> HashMap<String, String> {
     let mut config = HashMap::new();
     let mut current_key = String::new();
@@ -158,9 +156,12 @@ pub fn read_io_input(
     )?;
     loop {
         if let event::Event::Key(KeyEvent {
-            code, modifiers: _, kind, ..
+            code,
+            modifiers: _,
+            kind,
+            ..
         }) = event::read()?
-        {   
+        {
             if kind == event::KeyEventKind::Release {
                 continue; // 忽略释放按键的事件
             }
@@ -225,7 +226,7 @@ pub fn append_line_to_file(file_path: &str, content: &str) -> io::Result<()> {
         .write(true)
         .append(true)
         .create(true)
-        .open(file_path)?;  // 使用问号运算符，如果出现错误，会立即返回错误
+        .open(file_path)?; // 使用问号运算符，如果出现错误，会立即返回错误
 
     // 使用writeln!宏将内容写入文件，它会自动添加换行符
     // 如果写入失败，会立即返回错误
@@ -240,7 +241,6 @@ pub fn append_lines<T: AsRef<str>>(file_path: &str, contents: Vec<T>) {
         append_line_to_file(file_path, content.as_ref()).unwrap();
     }
 }
-
 
 pub fn gen_url(rule_name: String) -> String {
     return format!(
