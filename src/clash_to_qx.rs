@@ -132,7 +132,7 @@ pub fn format_proxies(proxies: Vec<Proxy>) -> Vec<String> {
             }
 
             // 添加 name (tag)
-            parts.push(format!("tag = {}", filter_emoji(proxy.name)));
+            parts.push(format!("tag={}", filter_emoji(proxy.name)));
 
             // 将部分拼接成完整字符串
             parts.join(", ")
