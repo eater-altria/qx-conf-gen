@@ -34,7 +34,7 @@ fn generate_filter_remote(rule_list: &Vec<&str>) -> Vec<String> {
     return filter_remote_vec;
 }
 
-pub fn output_config_file_content(rule_list: Vec<&str>, node_names: String, node_list: String) {
+pub fn output_config_file_content(rule_list: Vec<&str>, node_names: String, node_list: String, need_write: bool) -> String {
     let mut contents_vec: Vec<String> = Vec::new();
     let general_content = Vec::from(GENERAL_CONTENT);
     contents_vec.extend(general_content.iter().map(|s| s.to_string()));
@@ -58,5 +58,8 @@ pub fn output_config_file_content(rule_list: Vec<&str>, node_names: String, node
     contents_vec.extend(FILTER_LOCAL.iter().map(|s| s.to_string()));
 
     contents_vec.extend(OTHER_SETTING.iter().map(|s| s.to_string()));
-    append_lines("qx.conf", contents_vec)
+    if need_write {
+        append_lines("qx.conf", contents_vec.clone());
+    }
+    contents_vec.join("\n")
 }

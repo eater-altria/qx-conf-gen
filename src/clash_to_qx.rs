@@ -27,6 +27,7 @@ pub struct ClashConfig {
 
 pub async fn fetch_clash_conf(url: String) -> String {
     // 发送 GET 请求
+    println!("url: {}", url);
     let response = reqwest::get(&url).await.unwrap();
 
     // 检查请求是否成功
